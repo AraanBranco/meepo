@@ -32,7 +32,7 @@ func ConfigureLogging(configPreset string) error {
 
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request: ", zap.String("Path", r.URL.Path))
+		zap.L().Info("Request: ", zap.String("Path:", r.URL.Path))
 		next.ServeHTTP(w, r)
 	})
 }

@@ -10,7 +10,7 @@ import (
 
 func NewViperConfig(configPath string) (config.Config, error) {
 	config := viper.New()
-	config.SetEnvPrefix("maestro")
+	config.SetEnvPrefix("meepo")
 	config.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	config.AutomaticEnv()
 
