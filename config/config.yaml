@@ -1,0 +1,11 @@
+api:
+  port: 3000
+  gracefulShutdownTimeout: 30s
+
+adapters:
+  redis:
+    poolSize: 500
+    url: "redis://localhost:6379/0"
+
+lobby:
+  maxPlayers: 1
