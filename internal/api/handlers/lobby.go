@@ -15,19 +15,14 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 	body, _ := io.ReadAll(r.Body)
 	_ = json.Unmarshal(body, &req)
 
-	hasError, errors := req.Validate(configs)
-	if hasError {
+	hasErrors, errors := req.Validate(configs)
+	if hasErrors {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"errors": errors})
 		return
 	}
 
-	lobbyManager, err := service.NewLobbyManager(configs)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
-		return
-	}
+	lobbyManager := service.NewLobbyManager(configs)
 
 	lobbyStatus := lobbyManager.CreateLobby(req)
 
@@ -41,19 +36,20 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 }
 
 func StatusLobby(w http.ResponseWriter, r *http.Request, configs config.Config, referenceID string) {
-	lobbyManager, err := service.NewLobbyManager(configs)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+	lobbyManager := service.NewLobbyManager(configs)
+
+	lobbyStatus, lobbyData := lobbyManager.StatusLobby(referenceID)
+	if lobbyStatus == "error" {
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": "lobby not found"})
 		return
 	}
 
-	lobbyStatus := lobbyManager.StatusLobby()
-	res := interfaces.GetLobbyResponse{
-		ReferenceID: referenceID,
-		LobbyStatus: lobbyStatus,
-	}
+	var response interfaces.GetLobbyResponse
+	_ = json.Unmarshal([]byte(lobbyData), &response)
+
+	response.LobbyStatus = lobbyStatus
 
 	w.WriteHeader(http.StatusOK)
-	_ = json.NewEncoder(w).Encode(res)
+	_ = json.NewEncoder(w).Encode(response)
 }

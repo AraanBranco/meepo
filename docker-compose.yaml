@@ -1,0 +1,12 @@
+name: meepo
+
+services:
+  activemq:
+    image: apache/activemq-artemis:2.39.0-alpine
+    ports:
+      - 8161:8161   # ui
+      - 61613:61613 # stomp
+    environment:
+      ARTEMIS_USER: admin
+      ARTEMIS_PASSWORD: admin
+      ANONYMOUS_LOGIN: true

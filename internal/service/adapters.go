@@ -1,40 +1,46 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/AraanBranco/meepo/internal/config"
+	"github.com/AraanBranco/meepo/internal/core/services/bot"
 	"github.com/AraanBranco/meepo/internal/core/services/lobby"
+	"github.com/paralin/go-steam"
 	"github.com/redis/go-redis/v9"
 )
 
 // Configs Paths for adapters
 const (
 	redisPoolSizePath = "adapters.redis.poolSize"
-	redisURLPath      = "adapters.redis.url"
+	redisURIPath      = "adapters.redis.uri"
+	redisUserPath     = "adapters.redis.user"
+	redisPassPath     = "adapters.redis.password"
+	redisDBPath       = "adapters.redis.db"
+
+	stompURLPath = "adapters.stomp.url"
 )
 
-func NewLobbyManager(c config.Config) (*lobby.LobbyManager, error) {
-	redisURL := c.GetString(redisURLPath)
-	redisClient, err := createRedisClient(c, redisURL)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create redis client: %w", err)
-	}
+func NewLobbyManager(c config.Config) *lobby.LobbyManager {
+	redisClient := createRedisClient(c)
 
-	return lobby.New(c, redisClient), nil
+	return lobby.New(c, redisClient)
 }
 
-func createRedisClient(c config.Config, url string) (*redis.Client, error) {
-	opts, err := redis.ParseURL(url)
-	if err != nil {
-		return nil, fmt.Errorf("invalid redis URL: %w", err)
-	}
-	opts.PoolSize = c.GetInt(redisPoolSizePath)
-	if opts.TLSConfig != nil {
-		opts.TLSConfig.InsecureSkipVerify = true
-	}
+func NewBotManager(c config.Config) *bot.BotManager {
+	redisClient := createRedisClient(c)
+	steamClient := steam.NewClient()
+	steam.InitializeSteamDirectory()
 
-	client := redis.NewClient(opts)
+	return bot.New(c, redisClient, steamClient)
+}
 
-	return client, nil
+func createRedisClient(c config.Config) *redis.Client {
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     c.GetString(redisURIPath),
+		Username: c.GetString(redisUserPath),
+		Password: c.GetString(redisPassPath),
+		DB:       c.GetInt(redisDBPath),
+		PoolSize: c.GetInt(redisPoolSizePath),
+	})
+
+	return rdb
 }

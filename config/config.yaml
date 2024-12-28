@@ -4,8 +4,16 @@ api:
 
 adapters:
   redis:
-    poolSize: 500
-    url: "redis://localhost:6379/0"
+    poolSize: 50
+    uri: "localhost:6379"
+    user: ""
+    password: ""
+    db: 0
 
 lobby:
-  maxPlayers: 1
+  maxPlayers: 10 # use 10 in production
+
+bot:
+  allowCheats: true
+  # username: "" // Used for tests
+  # password: "" // Used for tests
