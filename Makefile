@@ -27,5 +27,16 @@ run/management-api: build ## Runs meepo management-api.
 	@MEEPO_API_PORT=3000 go run main.go start management-api -l development
 
 .PHONY: run/bot
-run/rooms-api: build ## Runs meepo bot.
-	@go run main.go start bot -l development
+run/bot: build ## Runs meepo bot.
+	@go run main.go start bot
+
+#-------------------------------------------------------------------------------
+#  Development
+#-------------------------------------------------------------------------------
+.PHONY: dev/management-api
+dev/management-api: ## Runs meepo management-api in development mode.
+	@MEEPO_API_PORT=3000 go run main.go start management-api
+
+.PHONY: run/bot
+dev/bot: ## Runs meepo bot.
+	@go run main.go start bot

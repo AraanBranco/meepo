@@ -15,8 +15,8 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 	body, _ := io.ReadAll(r.Body)
 	_ = json.Unmarshal(body, &req)
 
-	hasError, errors := req.Validate(configs)
-	if hasError {
+	hasErrors, errors := req.Validate(configs)
+	if hasErrors {
 		w.WriteHeader(http.StatusBadRequest)
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"errors": errors})
 		return
@@ -29,7 +29,16 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 		return
 	}
 
+	// Send message to MQTT
 	lobbyStatus := lobbyManager.CreateLobby(req)
+
+	// Create status in Redis
+	err = lobbyManager.EntityInRedis(req.ReferenceID, lobbyStatus)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		_ = json.NewEncoder(w).Encode(map[string]interface{}{"error": err.Error()})
+		return
+	}
 
 	res := interfaces.PostLobbyResponse{
 		ReferenceID: req.ReferenceID,
@@ -48,7 +57,7 @@ func StatusLobby(w http.ResponseWriter, r *http.Request, configs config.Config, 
 		return
 	}
 
-	lobbyStatus := lobbyManager.StatusLobby()
+	lobbyStatus := lobbyManager.StatusLobby(referenceID)
 	res := interfaces.GetLobbyResponse{
 		ReferenceID: referenceID,
 		LobbyStatus: lobbyStatus,

@@ -5,7 +5,13 @@ api:
 adapters:
   redis:
     poolSize: 500
-    url: "redis://localhost:6379/0"
+    uri: "localhost:6379"
+    user: ""
+    password: ""
+    db: 0
+
+  stomp:
+    url: "localhost:61613"
 
 lobby:
   maxPlayers: 1
