@@ -1,11 +1,10 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/AraanBranco/meepo/internal/config"
+	"github.com/AraanBranco/meepo/internal/core/services/bot"
 	"github.com/AraanBranco/meepo/internal/core/services/lobby"
-	"github.com/go-stomp/stomp/v3"
+	"github.com/paralin/go-steam"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -20,24 +19,18 @@ const (
 	stompURLPath = "adapters.stomp.url"
 )
 
-func NewLobbyManager(c config.Config) (*lobby.LobbyManager, error) {
-	connStomp, err := createStompConn(c.GetString(stompURLPath))
-	if err != nil {
-		return nil, fmt.Errorf("failed to connect to stomp: %w", err)
-	}
-
+func NewLobbyManager(c config.Config) *lobby.LobbyManager {
 	redisClient := createRedisClient(c)
 
-	return lobby.New(c, connStomp, redisClient), nil
+	return lobby.New(c, redisClient)
 }
 
-func createStompConn(url string) (*stomp.Conn, error) {
-	conn, err := stomp.Dial("tcp", url)
-	if err != nil {
-		return nil, err
-	}
+func NewBotManager(c config.Config) *bot.BotManager {
+	redisClient := createRedisClient(c)
+	steamClient := steam.NewClient()
+	steam.InitializeSteamDirectory()
 
-	return conn, nil
+	return bot.New(c, redisClient, steamClient)
 }
 
 func createRedisClient(c config.Config) *redis.Client {

@@ -1,4 +1,4 @@
-# Meepo
+# Meepow
 
 Example for start server:
 

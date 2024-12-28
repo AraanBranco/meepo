@@ -56,7 +56,6 @@ func runApi() {
 }
 
 func runServer(configs config.Config, r *mux.Router) func() error {
-
 	// Apis
 	r.HandleFunc("/", handlers.Default).Methods(http.MethodGet)
 

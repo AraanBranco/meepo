@@ -39,4 +39,4 @@ dev/management-api: ## Runs meepo management-api in development mode.
 
 .PHONY: run/bot
 dev/bot: ## Runs meepo bot.
-	@go run main.go start bot
+	@MEEPO_LOBBY_ID=123 go run main.go start bot
