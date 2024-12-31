@@ -1,14 +1,14 @@
 package cmd
 
 import (
-	"github.com/AraanBranco/meepo/cmd/bot"
-	"github.com/AraanBranco/meepo/cmd/managementapi"
+	"github.com/AraanBranco/meepow/cmd/bot"
+	"github.com/AraanBranco/meepow/cmd/managementapi"
 	"github.com/spf13/cobra"
 )
 
 var startCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Starts the provided meepo component service",
+	Short: "Starts the provided meepow component service",
 }
 
 func init() {

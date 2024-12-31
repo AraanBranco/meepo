@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	commom "github.com/AraanBranco/meepo/cmd/common"
-	"github.com/AraanBranco/meepo/internal/api/handlers"
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/service"
+	commom "github.com/AraanBranco/meepow/cmd/common"
+	"github.com/AraanBranco/meepow/internal/api/handlers"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/service"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,8 +23,8 @@ const serviceName string = "api"
 
 var ManagementApiCmd = &cobra.Command{
 	Use:     "management-api",
-	Short:   "Starts meepo management-api service",
-	Example: "meepo start management-api -c config.yaml -l production",
+	Short:   "Starts meepow management-api service",
+	Example: "meepow start management-api -c config.yaml -l production",
 	Run: func(cmd *cobra.Command, args []string) {
 		runApi()
 	},
@@ -56,16 +56,18 @@ func runApi() {
 }
 
 func runServer(configs config.Config, r *mux.Router) func() error {
+	lobbyManager := service.NewLobbyManager(configs)
+
 	// Apis
 	r.HandleFunc("/", handlers.Default).Methods(http.MethodGet)
 
 	r.HandleFunc("/new-lobby", func(w http.ResponseWriter, r *http.Request) {
-		handlers.NewLobby(w, r, configs)
+		handlers.NewLobby(w, r, configs, lobbyManager)
 	}).Methods(http.MethodPost)
 
 	r.HandleFunc("/status-lobby/{referenceId}", func(w http.ResponseWriter, r *http.Request) {
 		referenceID := mux.Vars(r)["referenceId"]
-		handlers.StatusLobby(w, r, configs, referenceID)
+		handlers.StatusLobby(w, r, configs, referenceID, lobbyManager)
 	}).Methods(http.MethodGet)
 
 	// Mdlws

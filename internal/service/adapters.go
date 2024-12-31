@@ -1,28 +1,35 @@
 package service
 
 import (
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/services/bot"
-	"github.com/AraanBranco/meepo/internal/core/services/lobby"
+	"context"
+
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/services/bot"
+	"github.com/AraanBranco/meepow/internal/core/services/lobby"
 	"github.com/paralin/go-steam"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
+
+	cfgAws "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 )
 
 // Configs Paths for adapters
 const (
-	redisPoolSizePath = "adapters.redis.poolSize"
-	redisURIPath      = "adapters.redis.uri"
-	redisUserPath     = "adapters.redis.user"
-	redisPassPath     = "adapters.redis.password"
-	redisDBPath       = "adapters.redis.db"
-
-	stompURLPath = "adapters.stomp.url"
+	redisURIPath = "adapters.redis.uri"
 )
 
 func NewLobbyManager(c config.Config) *lobby.LobbyManager {
 	redisClient := createRedisClient(c)
 
-	return lobby.New(c, redisClient)
+	cfg, err := cfgAws.LoadDefaultConfig(context.TODO(), cfgAws.WithRegion(c.GetString("providers.aws.region")))
+	if err != nil {
+		zap.L().Error("Erro ao carregar a configuração da AWS", zap.Error(err))
+	}
+
+	client := ecs.NewFromConfig(cfg)
+
+	return lobby.New(c, redisClient, client)
 }
 
 func NewBotManager(c config.Config) *bot.BotManager {
@@ -34,13 +41,23 @@ func NewBotManager(c config.Config) *bot.BotManager {
 }
 
 func createRedisClient(c config.Config) *redis.Client {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     c.GetString(redisURIPath),
-		Username: c.GetString(redisUserPath),
-		Password: c.GetString(redisPassPath),
-		DB:       c.GetInt(redisDBPath),
-		PoolSize: c.GetInt(redisPoolSizePath),
-	})
+	logger := zap.L().With(zap.String("adapter", "redis"))
+
+	logger.Info("Creating Redis client")
+
+	conf, err := redis.ParseURL(c.GetString(redisURIPath))
+	if err != nil {
+		logger.Error("Error parsing Redis URI", zap.Error(err))
+	}
+
+	rdb := redis.NewClient(conf)
+
+	redisStatus, err := rdb.Ping(context.Background()).Result()
+	if err != nil {
+		logger.Error("Error connecting to Redis", zap.Error(err))
+	}
+
+	logger.Info("Redis status", zap.String("status", redisStatus))
 
 	return rdb
 }

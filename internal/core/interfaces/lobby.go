@@ -3,7 +3,7 @@ package interfaces
 import (
 	"fmt"
 
-	"github.com/AraanBranco/meepo/internal/config"
+	"github.com/AraanBranco/meepow/internal/config"
 )
 
 type PostLobbyRequest struct {

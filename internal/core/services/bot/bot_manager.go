@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
 	"github.com/paralin/go-dota2"
 	"github.com/paralin/go-dota2/cso"
 	"github.com/paralin/go-dota2/protocol"
@@ -230,6 +231,7 @@ func (b *BotManager) StartupBot(lobbyData interfaces.BotConfig) {
 
 		case *steam.DisconnectedEvent:
 			fmt.Printf("Bot %s disconnected from Steam", logOnDetails.Username)
+			os.Exit(1)
 			return
 		}
 	}

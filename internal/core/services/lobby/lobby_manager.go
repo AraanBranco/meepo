@@ -5,20 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/infrastructure/cloudecs"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
 
 type LobbyManager struct {
+	ECS    *ecs.Client
 	Redis  *redis.Client
 	Config config.Config
 	Logger *zap.Logger
 }
 
-func New(conf config.Config, rs *redis.Client) *LobbyManager {
+func New(conf config.Config, rs *redis.Client, ecs *ecs.Client) *LobbyManager {
 	return &LobbyManager{
+		ECS:    ecs,
 		Redis:  rs,
 		Config: conf,
 		Logger: zap.L().With(zap.String("service", "lobby")),
@@ -26,7 +30,13 @@ func New(conf config.Config, rs *redis.Client) *LobbyManager {
 }
 
 func (l *LobbyManager) CreateEntityInRedis(referenceID string, lobbyData string) error {
-	_ = l.Redis.Set(context.Background(), fmt.Sprintf("lobby:%s", referenceID), lobbyData, 0).Err()
+	l.Logger.Info("Reference ID", zap.String("reference_id", referenceID))
+	l.Logger.Info("Lobby data marshalled", zap.String("data", lobbyData))
+	err := l.Redis.Set(context.Background(), fmt.Sprintf("lobby:%s", referenceID), lobbyData, 0).Err()
+	if err != nil {
+		l.Logger.Error("Error saving lobby data in Redis", zap.Error(err))
+		return err
+	}
 	return l.Redis.Set(context.Background(), fmt.Sprintf("lobby:%s:status", referenceID), interfaces.LOBBY_CREATING, 0).Err()
 }
 
@@ -69,11 +79,18 @@ func (l *LobbyManager) CreateLobby(params interfaces.PostLobbyRequest) string {
 	// Save lobby data in Redis
 	err = l.CreateEntityInRedis(params.ReferenceID, string(data))
 	if err != nil {
-		l.Logger.Error("Error saving lobby data in Redis", zap.Error(err))
+		l.Logger.Error("Error saving lobby in Redis", zap.Any("error", err.Error()))
 		return "error"
 	}
 
 	// Start ECS task asynchronously
+	taskArn, err := cloudecs.LaunchContainer(l.ECS, l.Config, params.ReferenceID)
+	if err != nil {
+		l.Logger.Error("Error launching ECS task", zap.Error(err))
+		return "error"
+	}
+
+	l.Logger.Info("ECS task started with arn: ", zap.String("task_arn", taskArn))
 
 	return "created"
 }

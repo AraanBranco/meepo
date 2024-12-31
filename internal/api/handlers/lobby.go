@@ -5,12 +5,12 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
-	"github.com/AraanBranco/meepo/internal/service"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/core/services/lobby"
 )
 
-func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
+func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config, lobbyManager *lobby.LobbyManager) {
 	var req interfaces.PostLobbyRequest
 	body, _ := io.ReadAll(r.Body)
 	_ = json.Unmarshal(body, &req)
@@ -21,8 +21,6 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 		_ = json.NewEncoder(w).Encode(map[string]interface{}{"errors": errors})
 		return
 	}
-
-	lobbyManager := service.NewLobbyManager(configs)
 
 	lobbyStatus := lobbyManager.CreateLobby(req)
 
@@ -35,9 +33,7 @@ func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {
 	_ = json.NewEncoder(w).Encode(res)
 }
 
-func StatusLobby(w http.ResponseWriter, r *http.Request, configs config.Config, referenceID string) {
-	lobbyManager := service.NewLobbyManager(configs)
-
+func StatusLobby(w http.ResponseWriter, r *http.Request, configs config.Config, referenceID string, lobbyManager *lobby.LobbyManager) {
 	lobbyStatus, lobbyData := lobbyManager.StatusLobby(referenceID)
 	if lobbyStatus == "error" {
 		w.WriteHeader(http.StatusNotFound)
