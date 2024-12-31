@@ -4,11 +4,7 @@ api:
 
 adapters:
   redis:
-    poolSize: 50
     uri: "localhost:6379"
-    user: ""
-    password: ""
-    db: 0
 
 lobby:
   maxPlayers: 1 # use 10 in production

@@ -14,7 +14,7 @@ import (
 func LaunchContainer(ecsClient *ecs.Client, config config.Config, referenceID string) (string, error) {
 	cluster := config.GetString("providers.aws.clusterName")
 	taskDefinition := config.GetString("providers.aws.taskDefinition")
-	containerName := fmt.Sprintf("lobby-%s", referenceID)
+	containerName := config.GetString("providers.aws.containerName")
 	logger := zap.L().With(zap.String("service", "ecs"))
 
 	// TODO: think how get the bot username and password (maybe from file?)
@@ -38,6 +38,14 @@ func LaunchContainer(ecsClient *ecs.Client, config config.Config, referenceID st
 		{
 			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_URI"),
 			Value: aws.String(config.GetString("adapters.redis.uri")),
+		},
+		{
+			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_USER"),
+			Value: aws.String(config.GetString("adapters.redis.user")),
+		},
+		{
+			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_PASSWORD"),
+			Value: aws.String(config.GetString("adapters.redis.password")),
 		},
 		{
 			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_POOLSIZE"),

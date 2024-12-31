@@ -16,13 +16,7 @@ import (
 
 // Configs Paths for adapters
 const (
-	redisPoolSizePath = "adapters.redis.poolSize"
-	redisURIPath      = "adapters.redis.uri"
-	redisUserPath     = "adapters.redis.user"
-	redisPassPath     = "adapters.redis.password"
-	redisDBPath       = "adapters.redis.db"
-
-	stompURLPath = "adapters.stomp.url"
+	redisURIPath = "adapters.redis.uri"
 )
 
 func NewLobbyManager(c config.Config) *lobby.LobbyManager {
@@ -47,13 +41,23 @@ func NewBotManager(c config.Config) *bot.BotManager {
 }
 
 func createRedisClient(c config.Config) *redis.Client {
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     c.GetString(redisURIPath),
-		Username: c.GetString(redisUserPath),
-		Password: c.GetString(redisPassPath),
-		DB:       c.GetInt(redisDBPath),
-		PoolSize: c.GetInt(redisPoolSizePath),
-	})
+	logger := zap.L().With(zap.String("adapter", "redis"))
+
+	logger.Info("Creating Redis client")
+
+	conf, err := redis.ParseURL(c.GetString(redisURIPath))
+	if err != nil {
+		logger.Error("Error parsing Redis URI", zap.Error(err))
+	}
+
+	rdb := redis.NewClient(conf)
+
+	redisStatus, err := rdb.Ping(context.Background()).Result()
+	if err != nil {
+		logger.Error("Error connecting to Redis", zap.Error(err))
+	}
+
+	logger.Info("Redis status", zap.String("status", redisStatus))
 
 	return rdb
 }
