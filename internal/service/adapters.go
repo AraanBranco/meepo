@@ -1,11 +1,17 @@
 package service
 
 import (
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/services/bot"
-	"github.com/AraanBranco/meepo/internal/core/services/lobby"
+	"context"
+
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/services/bot"
+	"github.com/AraanBranco/meepow/internal/core/services/lobby"
 	"github.com/paralin/go-steam"
 	"github.com/redis/go-redis/v9"
+	"go.uber.org/zap"
+
+	cfgAws "github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 )
 
 // Configs Paths for adapters
@@ -22,7 +28,14 @@ const (
 func NewLobbyManager(c config.Config) *lobby.LobbyManager {
 	redisClient := createRedisClient(c)
 
-	return lobby.New(c, redisClient)
+	cfg, err := cfgAws.LoadDefaultConfig(context.TODO(), cfgAws.WithRegion(c.GetString("providers.aws.region")))
+	if err != nil {
+		zap.L().Error("Erro ao carregar a configuração da AWS", zap.Error(err))
+	}
+
+	client := ecs.NewFromConfig(cfg)
+
+	return lobby.New(c, redisClient, client)
 }
 
 func NewBotManager(c config.Config) *bot.BotManager {

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	commom "github.com/AraanBranco/meepo/cmd/common"
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/service"
+	commom "github.com/AraanBranco/meepow/cmd/common"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/service"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 )
@@ -22,8 +22,8 @@ const serviceName string = "bot"
 
 var BotCmd = &cobra.Command{
 	Use:     "bot",
-	Short:   "Starts meepo bot service",
-	Example: "meepo start bot -c config.yaml -l production",
+	Short:   "Starts meepow bot service",
+	Example: "meepow start bot -c config.yaml -l production",
 	Run: func(cmd *cobra.Command, args []string) {
 		startBot()
 	},
@@ -51,7 +51,7 @@ func runBot(configs config.Config) func() error {
 	fmt.Println("Bot service started")
 	botManager := service.NewBotManager(configs)
 
-	referenceLobbyID := botManager.Config.GetString("lobby.id")
+	referenceLobbyID := botManager.Config.GetString("reference.id")
 	fmt.Println("Lobby ID: ", referenceLobbyID)
 
 	lobbyData, err := botManager.GetLobbyData(referenceLobbyID)

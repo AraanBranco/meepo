@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"net/http"
 
-	commom "github.com/AraanBranco/meepo/cmd/common"
-	"github.com/AraanBranco/meepo/internal/api/handlers"
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/service"
+	commom "github.com/AraanBranco/meepow/cmd/common"
+	"github.com/AraanBranco/meepow/internal/api/handlers"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/service"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -23,8 +23,8 @@ const serviceName string = "api"
 
 var ManagementApiCmd = &cobra.Command{
 	Use:     "management-api",
-	Short:   "Starts meepo management-api service",
-	Example: "meepo start management-api -c config.yaml -l production",
+	Short:   "Starts meepow management-api service",
+	Example: "meepow start management-api -c config.yaml -l production",
 	Run: func(cmd *cobra.Command, args []string) {
 		runApi()
 	},

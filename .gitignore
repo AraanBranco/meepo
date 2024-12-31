@@ -45,5 +45,6 @@ go.work
 
 # build
 bin/
+/config/config-prod.yaml
 
 # End of https://www.toptal.com/developers/gitignore/api/go,visualstudiocode

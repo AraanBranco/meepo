@@ -11,9 +11,18 @@ adapters:
     db: 0
 
 lobby:
-  maxPlayers: 10 # use 10 in production
+  maxPlayers: 1 # use 10 in production
 
 bot:
   allowCheats: true
-  # username: "" // Used for tests
-  # password: "" // Used for tests
+  # username: "" # Used for tests
+  # password: "" # Used for tests
+
+providers:
+  aws:
+    region: ""
+    clusterName: ""
+    taskDefinition: ""
+    subnet1: ""
+    subnet2: ""
+    securityGroup: ""

@@ -5,20 +5,24 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/infrastructure/cloudecs"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
+	"github.com/aws/aws-sdk-go-v2/service/ecs"
 	"github.com/redis/go-redis/v9"
 	"go.uber.org/zap"
 )
 
 type LobbyManager struct {
+	ECS    *ecs.Client
 	Redis  *redis.Client
 	Config config.Config
 	Logger *zap.Logger
 }
 
-func New(conf config.Config, rs *redis.Client) *LobbyManager {
+func New(conf config.Config, rs *redis.Client, ecs *ecs.Client) *LobbyManager {
 	return &LobbyManager{
+		ECS:    ecs,
 		Redis:  rs,
 		Config: conf,
 		Logger: zap.L().With(zap.String("service", "lobby")),
@@ -74,6 +78,13 @@ func (l *LobbyManager) CreateLobby(params interfaces.PostLobbyRequest) string {
 	}
 
 	// Start ECS task asynchronously
+	taskArn, err := cloudecs.LaunchContainer(l.ECS, l.Config, params.ReferenceID)
+	if err != nil {
+		l.Logger.Error("Error launching ECS task", zap.Error(err))
+		return "error"
+	}
+
+	l.Logger.Info("ECS task started with arn: ", zap.String("task_arn", taskArn))
 
 	return "created"
 }

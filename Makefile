@@ -14,29 +14,33 @@ help: Makefile ## Show list of commands.
 
 .PHONY: build
 build: build-linux-x86_64 ## Build the project and generates a binary.
-	@rm -f ./bin/meepo || true
-	@go build -o ./bin/meepo ./
+	@rm -f ./bin/meepow || true
+	@go build -o ./bin/meepow ./
 
 .PHONY: build-linux-x86_64
 build-linux-x86_64: ## Build the project and generates a binary for x86_64 architecture.
-	@rm -f ./bin/meepo-linux-x86_64 || true
-	@env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o ./bin/meepo-linux-x86_64 ./
+	@rm -f ./bin/meepow-linux-x86_64 || true
+	@env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o ./bin/meepow-linux-x86_64 ./
 
 .PHONY: run/management-api
-run/management-api: build ## Runs meepo management-api.
-	@MEEPO_API_PORT=3000 go run main.go start management-api -l development
+run/management-api: build ## Runs meepow management-api.
+	@MEEPOW_API_PORT=3000 go run main.go start management-api -l development
 
 .PHONY: run/bot
-run/bot: build ## Runs meepo bot.
-	@go run main.go start bot
+run/bot: build ## Runs meepow bot.
+	@go run main.go start bot -l development
+
+.PHONY: docker/build
+docker/build: ## Build docker image.
+	@docker build -t meepow .
 
 #-------------------------------------------------------------------------------
 #  Development
 #-------------------------------------------------------------------------------
 .PHONY: dev/management-api
-dev/management-api: ## Runs meepo management-api in development mode.
-	@MEEPO_API_PORT=3000 go run main.go start management-api
+dev/management-api: ## Runs meepow management-api in development mode.
+	@MEEPOW_API_PORT=3000 go run main.go start management-api
 
-.PHONY: run/bot
-dev/bot: ## Runs meepo bot.
-	@MEEPO_LOBBY_ID=123 go run main.go start bot
+.PHONY: dev/bot
+dev/bot: ## Runs meepow bot.
+	@go run main.go start bot

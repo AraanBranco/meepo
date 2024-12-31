@@ -5,9 +5,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
-	"github.com/AraanBranco/meepo/internal/service"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/service"
 )
 
 func NewLobby(w http.ResponseWriter, r *http.Request, configs config.Config) {

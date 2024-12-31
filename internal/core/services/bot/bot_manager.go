@@ -7,8 +7,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/core/interfaces"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/core/interfaces"
 	"github.com/paralin/go-dota2"
 	"github.com/paralin/go-dota2/cso"
 	"github.com/paralin/go-dota2/protocol"

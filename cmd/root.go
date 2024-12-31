@@ -9,7 +9,7 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "meepo",
+		Use:   "meepow",
 		Short: "Meepo is a tool for managing multiples lobbies for Dota 2",
 	}
 )

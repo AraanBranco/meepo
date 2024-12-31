@@ -7,9 +7,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/AraanBranco/meepo/internal/config"
-	"github.com/AraanBranco/meepo/internal/config/viper"
-	"github.com/AraanBranco/meepo/internal/service"
+	"github.com/AraanBranco/meepow/internal/config"
+	"github.com/AraanBranco/meepow/internal/config/viper"
+	"github.com/AraanBranco/meepow/internal/service"
 	"go.uber.org/zap"
 )
 

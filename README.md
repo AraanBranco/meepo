@@ -3,8 +3,15 @@
 Example for start server:
 
 Development:
+
+Running API
 ```
-go run ./main.go start
+make dev/management-api
+```
+
+Running Bot
+```
+MEEPOW_LOBBY_ID={ReferenceID} make dev/bot
 ```
 
 # WIP

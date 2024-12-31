@@ -12,17 +12,15 @@ RUN mkdir -p /app
 RUN apk add --update make
 
 RUN cd /build && \
-    make build-linux-x86_64 && \
-    mv ./bin/meepo-linux-x86_64 /app/meepo && \
+    make build && \
+    mv ./bin/meepow /app/meepow && \
     mv ./config /app/config
 
 FROM alpine
 
 WORKDIR /app
 
-COPY --from=build /app/meepo /app/meepo
+COPY --from=build /app/meepow /app/meepow
 COPY --from=build /app/config /app/config
 
-EXPOSE 3000 8080
-
-CMD /app/meepo
+ENTRYPOINT ["/app/meepow"]
