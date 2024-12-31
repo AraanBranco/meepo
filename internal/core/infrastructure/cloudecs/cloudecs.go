@@ -39,22 +39,6 @@ func LaunchContainer(ecsClient *ecs.Client, config config.Config, referenceID st
 			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_URI"),
 			Value: aws.String(config.GetString("adapters.redis.uri")),
 		},
-		{
-			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_USER"),
-			Value: aws.String(config.GetString("adapters.redis.user")),
-		},
-		{
-			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_PASSWORD"),
-			Value: aws.String(config.GetString("adapters.redis.password")),
-		},
-		{
-			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_POOLSIZE"),
-			Value: aws.String(config.GetString("adapters.redis.poolSize")),
-		},
-		{
-			Name:  aws.String("MEEPOW_ADAPTERS_REDIS_DB"),
-			Value: aws.String(config.GetString("adapters.redis.db")),
-		},
 	}
 
 	// Sobrescreve as definições do container na task definition
@@ -63,7 +47,7 @@ func LaunchContainer(ecsClient *ecs.Client, config config.Config, referenceID st
 			{
 				Name:        aws.String(containerName),
 				Environment: envVars,
-				Command:     []string{"start, bot"},
+				Command:     []string{"start", "bot"},
 			},
 		},
 	}

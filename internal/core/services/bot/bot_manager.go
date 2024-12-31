@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 
@@ -230,6 +231,7 @@ func (b *BotManager) StartupBot(lobbyData interfaces.BotConfig) {
 
 		case *steam.DisconnectedEvent:
 			fmt.Printf("Bot %s disconnected from Steam", logOnDetails.Username)
+			os.Exit(1)
 			return
 		}
 	}
